@@ -5,7 +5,7 @@ couchdbtcl
 A [Tcl] (http://tcl.tk) client interface to Apache CouchDB. The library consists of a single
 [Tcl Module] (http://tcl.tk/man/tcl8.6/TclCmd/tm.htm#M9) file.
 
-couchdbtcl is using  Tcl built-in pacakge http to send request
+couchdbtcl is using  Tcl built-in package http to send request
 to [Aapache CouchDB] (http://couchdb.apache.org/) and get response.
 
 
