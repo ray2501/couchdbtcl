@@ -89,7 +89,6 @@ first admin account is created, everyone’s an admin. In Admin Party mode,
 connect to CouchDB setup auth type to no:
 
     set mydatabase [CouchDB_Database new localhost 5984 wiki no]
-    puts $response
 
 Basic authentication is a quick and simple way to authenticate with CouchDB. 
 The main drawback is the need to send user credentials with each request 
