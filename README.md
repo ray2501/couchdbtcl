@@ -124,3 +124,88 @@ OAuth Authentication, need use method oauth_set to setup key and token info:
 
     set mydatabase [CouchDB_Database new localhost 5984 wiki oauth]
     $mydatabase oauth_set $consumer_key $consumer_secret $token $token_secret
+
+    
+### Example
+
+Below is a simple example (using tcllib json package to parse JSON string, OAUTH authentication):
+
+    package require couchdbtcl
+    package require json
+
+    set consumer_key consumer1
+    set consumer_secret sekr1t
+    set token token1
+    set token_secret tokensekr1t
+
+    set mycouchdb [CouchDB_Server new localhost 5984 oauth]
+    $mycouchdb oauth_set $consumer_key $consumer_secret $token $token_secret
+    set response [$mycouchdb hello]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "Connect to CouchDB fail."
+        exit
+    } else {
+        if {[dict exists $result couchdb]==1} {
+            puts "couchdb: [dict get $result couchdb]"
+        }
+
+        if {[dict exists $result version]==1} {
+            puts "version: [dict get $result version]\n"
+        }
+    }
+
+    set response [$mycouchdb all_dbs]
+    set result [::json::json2dict $response]
+    puts "Current database list: $result\n"
+
+    set mydatabase [CouchDB_Database new localhost 5984  wiki oauth]
+    $mydatabase oauth_set $consumer_key $consumer_secret $token $token_secret
+    set response [$mydatabase create]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "Create database fail."
+        puts "Error: [dict get $result error]\n"
+    } else {
+        puts "Create database OK.\n"
+    }
+
+    set response [$mycouchdb all_dbs]
+    set result [::json::json2dict $response]
+    puts "Current database list: $result\n"
+
+    set response [$mydatabase create]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "Create database fail."
+        puts "Error: [dict get $result error]\n"
+    } else {
+        puts "Create database OK.\n"
+    }
+
+    set response [$mydatabase db_post {{"text" : "Wikipedia on CouchDB", "rating": 5}}]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "db_post fail."
+        puts "Error: [dict get $result error]\n"
+    } else {
+        puts "db_post OK.\n"
+    }
+
+    set response [$mydatabase info]
+    set result [::json::json2dict $response]
+    puts "Databas info:"
+    foreach key [dict keys $result] {
+        puts "$key: [dict get $result $key]"
+    }
+
+    puts "\n"
+
+    set response [$mydatabase delete]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "Delete Database fail."
+        puts "Error: [dict get $result error]\n"
+    } else {
+        puts "Delete Database OK.\n"
+    }
