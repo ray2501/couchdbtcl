@@ -209,3 +209,119 @@ Below is a simple example (using tcllib json package to parse JSON string, OAUTH
     } else {
         puts "Delete Database OK.\n"
     }
+
+Below is a simple documents example (Cookie authentication):
+
+    package require couchdbtcl
+    package require json
+
+    #setup username and password
+    set user admin
+    set passwd admin
+
+    set mydatabase [CouchDB_Database new localhost 5984 recipes cookie $user $passwd]
+    set response [$mydatabase cookie_post]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        if {[dict exists $result reason]==1} {
+            puts "reason: [dict get $result reason]\n"
+        }
+
+        puts "Create a new session fail, close."
+        exit
+    }
+
+    set response [$mydatabase create]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "Create database fail.\n"
+        set reason [dict get $result error]
+
+        # Except file_exists, close this program
+        if {[string equal $reason "file_exists"] != 1} {
+            exit
+        }
+    } else {
+        puts "Create database OK.\n"
+    }
+
+    # Stores the specified document
+    set response [$mydatabase doc_put SpaghettiWithMeatballs {
+    {
+        "description": "An Italian-American dish that usually consists of spaghetti, tomato sauce and meatballs.",
+        "ingredients": [
+            "spaghetti",
+            "tomato sauce",
+            "meatballs"
+        ],
+        "name": "Spaghetti with meatballs"
+    }}]
+
+    set result [::json::json2dict $response]
+    if {[dict exists $result ok]==1} {
+        puts "Stores the specified document OK.\n"
+    } else {
+        puts "Stores the specified document fail.\n"
+    }
+
+    # Gets the specified document
+    set response [$mydatabase doc_get SpaghettiWithMeatballs]
+    set result [::json::json2dict $response]
+
+    # Gets current document’s revision
+    set revid {}
+    if {[dict exists $result _rev]==1} {
+        set revid [dict get $result _rev]
+    }
+
+    puts "Gets the specified document result:"
+    foreach key [dict keys $result] {
+        puts "$key: [dict get $result $key]"
+    }
+
+    puts "\n"
+
+    # Deletes the specified document
+    set response [$mydatabase doc_delete SpaghettiWithMeatballs $revid]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "Delete document fail."
+        puts "Error: [dict get $result error]\n"
+    } else {
+        puts "Delete document OK.\n"
+    }
+
+
+    # Now print the database info
+    # CouchDB doesn’t actually delete documents. So check current status.
+    set response [$mydatabase info]
+    set result [::json::json2dict $response]
+    puts "Databas info:"
+    foreach key [dict keys $result] {
+        puts "$key: [dict get $result $key]"
+    }
+
+    puts "\n"
+
+
+    set response [$mydatabase delete]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "Delete Database fail."
+        puts "Error: [dict get $result error]\n"
+    } else {
+        puts "Delete Database OK.\n"
+    }
+
+
+    set response [$mydatabase cookie_delete]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        if {[dict exists $result reason]==1} {
+            puts "reason: [dict get $result reason]\n"
+        }
+
+        puts "Delete a session fail."
+    } else {
+        puts "Done, close this session."
+    }
