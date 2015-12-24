@@ -29,7 +29,7 @@
 #
 
 package require Tcl 8.6
-package require oauth
+package require myoauth
 package require TclOO
 package require http
 package require base64

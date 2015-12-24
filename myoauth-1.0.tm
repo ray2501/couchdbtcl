@@ -1,7 +1,7 @@
 package require base64
 package require sha1
 
-package provide oauth 1.0
+package provide myoauth 1.0
 
 #
 # source code is from http://wiki.tcl.tk/27608
