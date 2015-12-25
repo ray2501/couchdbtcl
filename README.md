@@ -403,7 +403,6 @@ Below is a simple documents and attachment example (Basic authentication):
         set filename [dict keys $myattachments]
         puts "Filename: $filename"
         set content [dict get $myattachments $filename]
-        set myattachments2 [dict keys $content]
         set content_type [dict get $content content_type]
         puts "content_type: $content_type"
     }
