@@ -90,19 +90,19 @@ connect to CouchDB setup auth type to no:
 
     set mydatabase [CouchDB_Database new localhost 5984 wiki no]
 
-Basic authentication is a quick and simple way to authenticate with CouchDB. 
-The main drawback is the need to send user credentials with each request 
-which may be insecure and could hurt operation performance (since CouchDB 
+Basic authentication is a quick and simple way to authenticate with CouchDB.
+The main drawback is the need to send user credentials with each request
+which may be insecure and could hurt operation performance (since CouchDB
 must compute password hash with every request).
 
 Connect to CouchDB setup auth type to basic:
 
     set mydatabase [CouchDB_Database new localhost 5984 wiki basic $username $password]
 
-For cookie authentication CouchDB generates a token that the client can use 
+For cookie authentication CouchDB generates a token that the client can use
 for the next few requests to CouchDB. Tokens are valid until a timeout.
-When CouchDB sees a valid token in a subsequent request, it will authenticate 
-user by this token without requesting the password again. By default, cookies 
+When CouchDB sees a valid token in a subsequent request, it will authenticate
+user by this token without requesting the password again. By default, cookies
 are valid for 10 minutes
 
 Cookie Authentication, need use method cookie_post to initiate new session
@@ -125,7 +125,7 @@ OAuth Authentication, need use method oauth_set to setup key and token info:
     set mydatabase [CouchDB_Database new localhost 5984 wiki oauth]
     $mydatabase oauth_set $consumer_key $consumer_secret $token $token_secret
 
-    
+
 ### Example
 
 Below is a simple example (using tcllib json package to parse JSON string, OAUTH authentication):
@@ -291,7 +291,6 @@ Below is a simple documents example (Cookie authentication):
         puts "Delete document OK.\n"
     }
 
-
     # Now print the database info
     # CouchDB doesn’t actually delete documents. So check current status.
     set response [$mydatabase info]
@@ -303,7 +302,6 @@ Below is a simple documents example (Cookie authentication):
 
     puts "\n"
 
-
     set response [$mydatabase delete]
     set result [::json::json2dict $response]
     if {[dict exists $result error]==1} {
@@ -312,7 +310,6 @@ Below is a simple documents example (Cookie authentication):
     } else {
         puts "Delete Database OK.\n"
     }
-
 
     set response [$mydatabase cookie_delete]
     set result [::json::json2dict $response]
@@ -324,4 +321,118 @@ Below is a simple documents example (Cookie authentication):
         puts "Delete a session fail."
     } else {
         puts "Done, close this session."
+    }
+
+Below is a simple documents and attachment example (Basic authentication):
+
+    package require couchdbtcl
+    package require json
+
+    #setup username and password
+    set user admin
+    set passwd admin
+
+    set mydatabase [CouchDB_Database new localhost 5984 recipes basic $user $passwd]
+    set response [$mydatabase create]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "Create database fail.\n"
+        set reason [dict get $result error]
+
+        # Except file_exists, close this program
+        if {[string equal $reason "file_exists"] != 1} {
+            exit
+        }
+    } else {
+        puts "Create database OK.\n"
+    }
+
+    # Stores the specified document
+    set response [$mydatabase doc_put SpaghettiWithMeatballs {
+    {
+        "description": "An Italian-American dish that usually consists of spaghetti, tomato sauce and meatballs.",
+        "ingredients": [
+            "spaghetti",
+            "tomato sauce",
+            "meatballs"
+        ],
+        "name": "Spaghetti with meatballs"
+    }}]
+
+    set result [::json::json2dict $response]
+    if {[dict exists $result ok]==1} {
+        puts "Stores the specified document OK.\n"
+    } else {
+        puts "Stores the specified document fail.\n"
+    }
+
+    # Gets the specified document
+    set response [$mydatabase doc_get SpaghettiWithMeatballs]
+    set result [::json::json2dict $response]
+
+    # Gets current document’s revision
+    set revid {}
+    if {[dict exists $result _rev]==1} {
+        set revid [dict get $result _rev]
+    }
+
+    # Uploads the supplied content as an attachment to the specified document
+    set response [$mydatabase docid_attachment_put SpaghettiWithMeatballs \
+                  recipe.txt $revid text/plain {1. Cook spaghetti
+    2. Cook meatballs
+    3. Mix them
+    4. Add tomato sauce
+    5. ...
+    6. PROFIT!}]
+    set result [::json::json2dict $response]
+    if {[dict exists $result ok]==1} {
+        puts "Add attachment recipe.txt OK.\n"
+
+        #Update revision
+        set revid [dict get $result rev]
+    } else {
+        puts "Add attachment recipe.txt fail.\n"
+    }
+
+    # Gets the specified document
+    set response [$mydatabase doc_get SpaghettiWithMeatballs]
+    set result [::json::json2dict $response]
+    if {[dict exists $result _attachments]==1} {
+        puts "Gets the specified document and get attachment basic info:"
+        set myattachments [dict get $result _attachments]
+        set filename [dict keys $myattachments]
+        puts "Filename: $filename"
+        set content [dict get $myattachments $filename]
+        set myattachments2 [dict keys $content]
+        set content_type [dict get $content content_type]
+        puts "content_type: $content_type"
+    }
+
+    puts "\n"
+
+    # Returns the file attachment associated with the document
+    set response [$mydatabase docid_attachment_get SpaghettiWithMeatballs recipe.txt $revid]
+    puts "Returns the file attachment body associated with the document:"
+    puts $response
+    puts "\n"
+
+    # Deletes the attachment attachment of the specified doc
+    set response [$mydatabase docid_attachment_delete SpaghettiWithMeatballs recipe.txt $revid]
+    set result [::json::json2dict $response]
+    if {[dict exists $result ok]==1} {
+        puts "Delete attachment recipe.txt OK.\n"
+
+        #Update revision
+        set revid [dict get $result rev]
+    } else {
+        puts "Delete attachment recipe.txt fail.\n"
+    }
+
+    set response [$mydatabase delete]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "Delete Database fail."
+        puts "Error: [dict get $result error]\n"
+    } else {
+        puts "Delete Database OK.\n"
     }
