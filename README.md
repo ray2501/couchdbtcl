@@ -9,7 +9,7 @@ couchdbtcl is using  Tcl built-in package http to send request
 to [Aapache CouchDB] (http://couchdb.apache.org/) and get response.
 
 
-Interafce
+Interface
 =====
 
 The CouchDB API is the primary method of interfacing to a CouchDB instance.
