@@ -105,9 +105,15 @@ oo::class create CouchDB_Request {
         }
 
         if { [string length $data] < 1 } {
-            set tok [http::geturl $url -method $method -headers $headers]
+            if {[catch {set tok [http::geturl $url -method $method \
+                -headers $headers]}]} {
+                return {{"error": "connect failed"}}
+            }
         } else {
-            set tok [http::geturl $url -method $method -headers $headers -query $data]
+            if {[catch {set tok [http::geturl $url -method $method \
+                -headers $headers -query $data]}]} {
+                return {{"error": "connect failed"}}
+            }
         }
 
         if {[string compare -nocase $authtype "cookie"]==0 && $firstcookie==1} {
