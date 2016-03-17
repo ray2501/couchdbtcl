@@ -195,7 +195,7 @@ oo::class create CouchDB_Server {
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         set cookiestring "AuthSession=$authSession"
-        lappend headers Cookie $cookiestring
+        lappend headerl Cookie $cookiestring
         set res [$myrequest send_request $myurl GET $headerl]
 
         return $res
@@ -208,7 +208,7 @@ oo::class create CouchDB_Server {
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         set cookiestring "AuthSession=$authSession"
-        lappend headers Cookie $cookiestring
+        lappend headerl Cookie $cookiestring
         set res [$myrequest send_request $myurl DELETE $headerl]
 
         return $res
@@ -345,7 +345,7 @@ oo::class create CouchDB_Database {
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         set cookiestring "AuthSession=$authSession"
-        lappend headers Cookie $cookiestring
+        lappend headerl Cookie $cookiestring
         set res [$myrequest send_request $myurl GET $headerl]
 
         return $res
@@ -358,7 +358,7 @@ oo::class create CouchDB_Database {
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         set cookiestring "AuthSession=$authSession"
-        lappend headers Cookie $cookiestring
+        lappend headerl Cookie $cookiestring
         set res [$myrequest send_request $myurl DELETE $headerl]
 
         return $res
