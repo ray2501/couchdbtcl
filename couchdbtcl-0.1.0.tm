@@ -179,6 +179,18 @@ oo::class create CouchDB_Server {
 
     method setProtocol {PROTOCOL} {
         set protocol $PROTOCOL
+        set protocol [string tolower $protocol]
+
+        if {[string compare $protocol "https"]==0} {
+            if {[catch {package require tls}]==0} {
+                http::register https 443 [list ::tls::socket -ssl3 0 -ssl2 0 -tls1 1]
+
+                # update our status
+                set ssl_enabled 1
+            } else {
+                error "https needs package tls..."
+            }
+        }
 
         #update our server setting
         set server "$protocol://$host:$port"
@@ -334,6 +346,18 @@ oo::class create CouchDB_Database {
 
     method setProtocol {PROTOCOL} {
         set protocol $PROTOCOL
+        set protocol [string tolower $protocol]
+
+        if {[string compare $protocol "https"]==0} {
+            if {[catch {package require tls}]==0} {
+                http::register https 443 [list ::tls::socket -ssl3 0 -ssl2 0 -tls1 1]
+
+                # update our status
+                set ssl_enabled 1
+            } else {
+                error "https needs package tls..."
+            }
+        }
 
         #update our server setting
         set server "$protocol://$host:$port"
