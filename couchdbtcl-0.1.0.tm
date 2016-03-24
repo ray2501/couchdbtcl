@@ -190,6 +190,8 @@ oo::class create CouchDB_Server {
             } else {
                 error "https needs package tls..."
             }
+        } else {
+            set ssl_enabled 0
         }
 
         #update our server setting
@@ -357,6 +359,8 @@ oo::class create CouchDB_Database {
             } else {
                 error "https needs package tls..."
             }
+        } else {
+            set ssl_enabled 0
         }
 
         #update our server setting
