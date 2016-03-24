@@ -41,7 +41,7 @@ package require base64
 oo::class create CouchDB_Request {
     variable authtype
     variable username
-    variable password    
+    variable password
     variable firstcookie
     variable consumer_secret
     variable consumer_key
@@ -149,14 +149,27 @@ oo::class create CouchDB_Server {
     variable server
     variable authtype
     variable myrequest
+    variable ssl_enabled
 
-    constructor {HOST PORT AUTHTYPE {USERNAME ""} {PASSWORD ""}} {
+    constructor {HOST PORT AUTHTYPE {USERNAME ""} {PASSWORD ""} {SSL_ENABLED 0}} {
         set host $HOST
         set port $PORT
         set authtype $AUTHTYPE
         set myrequest [CouchDB_Request new $authtype $USERNAME $PASSWORD]
+        set ssl_enabled $SSL_ENABLED
 
-        set protocol "http"
+        if {$ssl_enabled} {
+            set protocol "https"
+
+            if {[catch {package require tls}]==0} {
+                http::register https 443 [list ::tls::socket -ssl3 0 -ssl2 0 -tls1 1]
+            } else {
+                error "SSL_ENABLED needs package tls..."
+            }
+        } else {
+            set protocol "http"
+        }
+
         set server "$protocol://$host:$port"
     }
 
@@ -180,7 +193,7 @@ oo::class create CouchDB_Server {
     method cookie_post {} {
         $myrequest setFirstCookie 1
         set myurl "$server/_session"
-        set headerl [list Accept "application/json" Content-Type "application/x-www-form-urlencoded"]        
+        set headerl [list Accept "application/json" Content-Type "application/x-www-form-urlencoded"]
         set res [$myrequest send_request $myurl POST $headerl]
 
         $myrequest setFirstCookie 0
@@ -190,12 +203,8 @@ oo::class create CouchDB_Server {
 
     # Returns complete information about authenticated user.
     method cookie_get {} {
-        variable authSession [$myrequest getAuthSession]
-
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set cookiestring "AuthSession=$authSession"
-        lappend headerl Cookie $cookiestring
         set res [$myrequest send_request $myurl GET $headerl]
 
         return $res
@@ -203,12 +212,8 @@ oo::class create CouchDB_Server {
 
     # Closes user session.
     method cookie_delete {} {
-        variable authSession [$myrequest getAuthSession]
-
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set cookiestring "AuthSession=$authSession"
-        lappend headerl Cookie $cookiestring
         set res [$myrequest send_request $myurl DELETE $headerl]
 
         return $res
@@ -298,15 +303,28 @@ oo::class create CouchDB_Database {
     variable database
     variable authtype
     variable myrequest
+    variable ssl_enabled
 
-    constructor {HOST PORT DATABASE AUTHTYPE {USERNAME ""} {PASSWORD ""}} {
+    constructor {HOST PORT DATABASE AUTHTYPE {USERNAME ""} {PASSWORD ""} {SSL_ENABLED 0}} {
         set host $HOST
         set port $PORT
         set database $DATABASE
         set authtype $AUTHTYPE
         set myrequest [CouchDB_Request new $authtype $USERNAME $PASSWORD]
+        set ssl_enabled $SSL_ENABLED
 
-        set protocol "http"
+        if {$ssl_enabled} {
+            set protocol "https"
+
+            if {[catch {package require tls}]==0} {
+                http::register https 443 [list ::tls::socket -ssl3 0 -ssl2 0 -tls1 1]
+            } else {
+                error "SSL_ENABLED needs package tls..."
+            }
+        } else {
+            set protocol "http"
+        }
+
         set server "$protocol://$host:$port"
     }
 
@@ -340,12 +358,8 @@ oo::class create CouchDB_Database {
 
     # Returns complete information about authenticated user.
     method cookie_get {} {
-        variable authSession [$myrequest getAuthSession]
-
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set cookiestring "AuthSession=$authSession"
-        lappend headerl Cookie $cookiestring
         set res [$myrequest send_request $myurl GET $headerl]
 
         return $res
@@ -353,12 +367,8 @@ oo::class create CouchDB_Database {
 
     # Closes user’s session.
     method cookie_delete {} {
-        variable authSession [$myrequest getAuthSession]
-
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set cookiestring "AuthSession=$authSession"
-        lappend headerl Cookie $cookiestring
         set res [$myrequest send_request $myurl DELETE $headerl]
 
         return $res
