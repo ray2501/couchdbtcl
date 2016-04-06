@@ -410,13 +410,15 @@ Below is a simple documents and attachment example (Basic authentication):
     puts "\n"
 
     # Returns the file attachment associated with the document
-    set response [$mydatabase docid_attachment_get SpaghettiWithMeatballs recipe.txt $revid]
+    set response [$mydatabase docid_attachment_get \
+                  SpaghettiWithMeatballs recipe.txt $revid]
     puts "Returns the file attachment body associated with the document:"
     puts $response
     puts "\n"
 
     # Deletes the attachment attachment of the specified doc
-    set response [$mydatabase docid_attachment_delete SpaghettiWithMeatballs recipe.txt $revid]
+    set response [$mydatabase docid_attachment_delete \
+                  SpaghettiWithMeatballs recipe.txt $revid]
     set result [::json::json2dict $response]
     if {[dict exists $result ok]==1} {
         puts "Delete attachment recipe.txt OK.\n"
@@ -434,4 +436,34 @@ Below is a simple documents and attachment example (Basic authentication):
         puts "Error: [dict get $result error]\n"
     } else {
         puts "Delete Database OK.\n"
+     }
+
+## HTTPS support
+
+If user enables HTTPS support, below is an example:
+
+    package require couchdbtcl
+    package require json
+
+    #setup username and password
+    set user admin
+    set passwd admin
+
+    set mydatabase [CouchDB_Server new localhost 6984 basic $user $passwd 1]
+    set response [$mydatabase hello]
+    set result [::json::json2dict $response]
+    if {[dict exists $result error]==1} {
+        puts "Connect to CouchDB fail."
+        exit
+    } else {
+        if {[dict exists $result couchdb]==1} {
+            puts "couchdb: [dict get $result couchdb]"
+        }
+
+        if {[dict exists $result version]==1} {
+            puts "version: [dict get $result version]\n"
+        }
     }
+
+Please notice, I use [TLS extension] (http://tls.sourceforge.net/) to add https support. So https support needs TLS extension.
+
