@@ -34,6 +34,8 @@ package require TclOO
 package require http
 package require base64
 
+package provide couchdbtcl 0.1.0
+
 
 #
 # CouchDB_Request class: handle send request to CouchDB
