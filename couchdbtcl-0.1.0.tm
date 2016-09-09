@@ -530,6 +530,9 @@ oo::class create CouchDB_Database {
 
     # Creates (and executes) a temporary view based on the view function
     # supplied in the JSON request.
+    #
+    # Import: Temporary views are no longer supported at version 2.0.
+    #         This method needs use at version < 2.0!
     method temp_view {data} {
         set myurl "$server/$database/_temp_view"
         set headerl [list Accept "application/json" Content-Type "application/json"]
