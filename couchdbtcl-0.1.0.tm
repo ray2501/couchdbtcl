@@ -179,27 +179,6 @@ oo::class create CouchDB_Server {
         $myrequest destroy
     }
 
-    method setProtocol {PROTOCOL} {
-        set protocol $PROTOCOL
-        set protocol [string tolower $protocol]
-
-        if {[string compare $protocol "https"]==0} {
-            if {[catch {package require tls}]==0} {
-                http::register https 443 [list ::tls::socket -ssl3 0 -ssl2 0 -tls1 1]
-
-                # update our status
-                set ssl_enabled 1
-            } else {
-                error "https needs package tls..."
-            }
-        } else {
-            set ssl_enabled 0
-        }
-
-        #update our server setting
-        set server "$protocol://$host:$port"
-    }
-
     # Use oauth to get access token and check CouchDB accept it
     method oauth_set {CONSUMER_KEY CONSUMER_SECRET TOKEN {TOKEN_SECRET ""}} {
         $myrequest oauth_set $CONSUMER_KEY $CONSUMER_SECRET $TOKEN $TOKEN_SECRET
@@ -346,27 +325,6 @@ oo::class create CouchDB_Database {
 
     destructor {
         $myrequest destroy
-    }
-
-    method setProtocol {PROTOCOL} {
-        set protocol $PROTOCOL
-        set protocol [string tolower $protocol]
-
-        if {[string compare $protocol "https"]==0} {
-            if {[catch {package require tls}]==0} {
-                http::register https 443 [list ::tls::socket -ssl3 0 -ssl2 0 -tls1 1]
-
-                # update our status
-                set ssl_enabled 1
-            } else {
-                error "https needs package tls..."
-            }
-        } else {
-            set ssl_enabled 0
-        }
-
-        #update our server setting
-        set server "$protocol://$host:$port"
     }
 
     # Use oauth to get access token and check CouchDB accept it
@@ -524,19 +482,6 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/_security"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         set res [$myrequest send_request $myurl PUT $headerl $data]
-
-        return $res
-    }
-
-    # Creates (and executes) a temporary view based on the view function
-    # supplied in the JSON request.
-    #
-    # Import: Temporary views are no longer supported at version 2.0.
-    #         This method needs use at version < 2.0!
-    method temp_view {data} {
-        set myurl "$server/$database/_temp_view"
-        set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl $data]
 
         return $res
     }
