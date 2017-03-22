@@ -2,11 +2,11 @@
 couchdbtcl
 =====
 
-A [Tcl] (http://tcl.tk) client interface to Apache CouchDB. The library consists of a single
-[Tcl Module] (http://tcl.tk/man/tcl8.6/TclCmd/tm.htm#M9) file.
+A [Tcl](http://tcl.tk) client interface to Apache CouchDB. The library consists of a single
+[Tcl Module](http://tcl.tk/man/tcl8.6/TclCmd/tm.htm#M9) file.
 
 couchdbtcl is using  Tcl built-in package http to send request
-to [Aapache CouchDB] (http://couchdb.apache.org/) and get response.
+to [Aapache CouchDB](http://couchdb.apache.org/) and get response.
 
 
 Interface
@@ -465,5 +465,5 @@ If user enables HTTPS support, below is an example:
         }
     }
 
-Please notice, I use [TLS extension] (http://tls.sourceforge.net/) to add https support. So https support needs TLS extension.
+Please notice, I use [TLS extension](http://tls.sourceforge.net/) to add https support. So https support needs TLS extension.
 
