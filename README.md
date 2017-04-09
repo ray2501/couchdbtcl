@@ -465,5 +465,6 @@ If user enables HTTPS support, below is an example:
         }
     }
 
-Please notice, I use [TLS extension](http://tls.sourceforge.net/) to add https support. So https support needs TLS extension.
+Please notice, I use [TLS extension](http://core.tcl.tk/tcltls/index) to add https support.
+So https support needs TLS extension.
 
