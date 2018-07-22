@@ -2,7 +2,7 @@
 #
 #	A TCL client interface to Apache CouchDB
 #
-# Copyright (C) 2015 Danilo Chang <ray2501@gmail.com>
+# Copyright (C) 2015-2018 Danilo Chang <ray2501@gmail.com>
 #
 # Retcltribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -109,12 +109,12 @@ oo::class create CouchDB_Request {
         if { [string length $data] < 1 } {
             if {[catch {set tok [http::geturl $url -method $method \
                 -headers $headers]}]} {
-                return {{"error": "connect failed"}}
+                return -code error {{"error": "connect failed"}}
             }
         } else {
             if {[catch {set tok [http::geturl $url -method $method \
                 -headers $headers -query $data]}]} {
-                return {{"error": "connect failed"}}
+                return -code error {{"error": "connect failed"}}
             }
         }
 
@@ -133,7 +133,13 @@ oo::class create CouchDB_Request {
         }
 
         set res [http::data $tok]
+        set ncode [::http::ncode $tok]
         http::cleanup $tok
+
+        if {$ncode >= 400} {
+            return -code error {{"error": "status code error"}}
+        }
+
         return $res
     }
 }
@@ -189,7 +195,11 @@ oo::class create CouchDB_Server {
         $myrequest setFirstCookie 1
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/x-www-form-urlencoded"]
-        set res [$myrequest send_request $myurl POST $headerl]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl]
+        } on error {em} {
+            return $em
+        }
 
         $myrequest setFirstCookie 0
 
@@ -200,7 +210,11 @@ oo::class create CouchDB_Server {
     method cookie_get {} {
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -209,7 +223,11 @@ oo::class create CouchDB_Server {
     method cookie_delete {} {
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl DELETE $headerl]
+        try {
+            set res [$myrequest send_request $myurl DELETE $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -219,7 +237,11 @@ oo::class create CouchDB_Server {
     method hello {} {
         set myurl "$server/"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -228,7 +250,11 @@ oo::class create CouchDB_Server {
     method active_tasks {} {
         set myurl "$server/_active_tasks"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -237,7 +263,11 @@ oo::class create CouchDB_Server {
     method all_dbs {} {
         set myurl "$server/_all_dbs"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -246,7 +276,11 @@ oo::class create CouchDB_Server {
     method log {} {
         set myurl "$server/_log"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -261,7 +295,11 @@ oo::class create CouchDB_Server {
     method replicate {data} {
         set myurl "$server/_replicate"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -270,7 +308,11 @@ oo::class create CouchDB_Server {
     method restart {} {
         set myurl "$server/_restart"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -279,7 +321,11 @@ oo::class create CouchDB_Server {
     method stats {} {
         set myurl "$server/_stats"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -337,7 +383,11 @@ oo::class create CouchDB_Database {
         $myrequest setFirstCookie 1
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/x-www-form-urlencoded"]
-        set res [$myrequest send_request $myurl POST $headerl]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl]
+        } on error {em} {
+            return $em
+        }
 
         $myrequest setFirstCookie 0
 
@@ -348,7 +398,11 @@ oo::class create CouchDB_Database {
     method cookie_get {} {
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -357,7 +411,11 @@ oo::class create CouchDB_Database {
     method cookie_delete {} {
         set myurl "$server/_session"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl DELETE $headerl]
+        try {
+            set res [$myrequest send_request $myurl DELETE $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -366,7 +424,11 @@ oo::class create CouchDB_Database {
     method create {} {
         set myurl "$server/$database"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl PUT $headerl]
+        try {
+            set res [$myrequest send_request $myurl PUT $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -375,7 +437,11 @@ oo::class create CouchDB_Database {
     method info {} {
         set myurl "$server/$database"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -384,7 +450,11 @@ oo::class create CouchDB_Database {
     method delete {} {
         set myurl "$server/$database"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl DELETE $headerl]
+        try {
+            set res [$myrequest send_request $myurl DELETE $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -394,7 +464,11 @@ oo::class create CouchDB_Database {
     method db_post {data} {
         set myurl "$server/$database"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -403,7 +477,11 @@ oo::class create CouchDB_Database {
     method all_docs_get {{data ""}} {
         set myurl "$server/$database/_all_docs"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET  $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl GET  $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -413,7 +491,11 @@ oo::class create CouchDB_Database {
     method all_docs_post {data} {
         set myurl "$server/$database/_all_docs"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -423,7 +505,11 @@ oo::class create CouchDB_Database {
     method bulk_docs {data} {
         set myurl "$server/$database/_bulk_docs"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -432,7 +518,11 @@ oo::class create CouchDB_Database {
     method changes {{data ""}} {
         set myurl "$server/$database/_changes"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -441,7 +531,11 @@ oo::class create CouchDB_Database {
     method compact {} {
         set myurl "$server/$database/_compact"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -450,7 +544,11 @@ oo::class create CouchDB_Database {
     method ensure_full_commit {} {
         set myurl "$server/$database/_ensure_full_commit"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -460,7 +558,11 @@ oo::class create CouchDB_Database {
     method view_cleanup {} {
         set myurl "$server/$database/_view_cleanup"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -472,7 +574,11 @@ oo::class create CouchDB_Database {
     method security_get {} {
         set myurl "$server/$database/_security"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -481,7 +587,11 @@ oo::class create CouchDB_Database {
     method security_put {data} {
         set myurl "$server/$database/_security"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl PUT $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl PUT $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -501,7 +611,11 @@ oo::class create CouchDB_Database {
     method missing_revs {data} {
         set myurl "$server/$database/_missing_revs"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -511,7 +625,11 @@ oo::class create CouchDB_Database {
     method revs_diff {data} {
         set myurl "$server/$database/_revs_diff"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -520,7 +638,11 @@ oo::class create CouchDB_Database {
     method revs_limit_get {} {
         set myurl "$server/$database/_revs_limit"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -530,7 +652,11 @@ oo::class create CouchDB_Database {
     method revs_limit_put {data} {
         set myurl "$server/$database/_revs_limit"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl PUT $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl PUT $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -544,7 +670,11 @@ oo::class create CouchDB_Database {
     method doc_get {id {data ""}} {
         set myurl "$server/$database/$id"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -553,7 +683,11 @@ oo::class create CouchDB_Database {
     method doc_put {id data} {
         set myurl "$server/$database/$id"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl PUT $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl PUT $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -564,7 +698,11 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/$id"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         lappend headerl If-Match $rev
-        set res [$myrequest send_request $myurl DELETE $headerl]
+        try {
+            set res [$myrequest send_request $myurl DELETE $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -575,7 +713,11 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/$id"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         lappend headerl Destination $destination
-        set res [$myrequest send_request $myurl COPY $headerl]
+        try {
+            set res [$myrequest send_request $myurl COPY $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -586,7 +728,11 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/$id/$attname"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         lappend  headerl If-Match $revision
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -598,7 +744,11 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/$id/$attname"
         set headerl [list Content-Type $ContentType]
         lappend  headerl If-Match $revision
-        set res [$myrequest send_request $myurl PUT $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl PUT $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -609,7 +759,11 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/$id/$attname"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         lappend  headerl If-Match $revision
-        set res [$myrequest send_request $myurl DELETE $headerl]
+        try {
+            set res [$myrequest send_request $myurl DELETE $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -625,7 +779,11 @@ oo::class create CouchDB_Database {
     method designdoc_get {ddocument} {
         set myurl "$server/$database/_design/$ddocument"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -635,7 +793,11 @@ oo::class create CouchDB_Database {
     method designdoc_put {ddocument data} {
         set myurl "$server/$database/_design/$ddocument"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl PUT $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl PUT $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -645,7 +807,11 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/_design/$ddocument"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         lappend  headerl If-Match $revision
-        set res [$myrequest send_request $myurl DELETE $headerl]
+        try {
+            set res [$myrequest send_request $myurl DELETE $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -657,7 +823,11 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/_design/$ddocument"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         lappend header1 Destination $destination
-        set res [$myrequest send_request $myurl COPY $headerl]
+        try {
+            set res [$myrequest send_request $myurl COPY $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -669,7 +839,11 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/_design/$ddocument/$attname"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         lappend  headerl If-Match $revision
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -682,7 +856,11 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/_design/$ddocument/$attname"
         set headerl [list Content-Type $ContentType]
         lappend  headerl If-Match $revision
-        set res [$myrequest send_request $myurl PUT $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl PUT $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -693,7 +871,11 @@ oo::class create CouchDB_Database {
         set myurl "$server/$database/_design/$ddocument/$attname"
         set headerl [list Accept "application/json" Content-Type "application/json"]
         lappend  headerl If-Match $revision
-        set res [$myrequest send_request $myurl DELETE $headerl]
+        try {
+            set res [$myrequest send_request $myurl DELETE $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -704,7 +886,11 @@ oo::class create CouchDB_Database {
     method designdoc_info {ddocument} {
         set myurl "$server/$database/_design/$ddocument/_info"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -713,7 +899,11 @@ oo::class create CouchDB_Database {
     method designdoc_view_get {ddocument viewname {data ""}} {
         set myurl "$server/$database/_design/$ddocument/_view/$viewname"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl GET $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -722,7 +912,11 @@ oo::class create CouchDB_Database {
     method designdoc_view_post {ddocument viewname data} {
         set myurl "$server/$database/_design/$ddocument/_view/$viewname"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -731,7 +925,11 @@ oo::class create CouchDB_Database {
     method designdoc_update_post {ddocument updatename data} {
         set myurl "$server/$database/_design/$ddocument/_update/$updatename"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl POST $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
@@ -740,7 +938,11 @@ oo::class create CouchDB_Database {
     method designdoc_updatename_post {ddocument updatename docid data} {
         set myurl "$server/$database/_design/$ddocument/_update/$updatename/$docid"
         set headerl [list Accept "application/json" Content-Type "application/json"]
-        set res [$myrequest send_request $myurl PUT $headerl $data]
+        try {
+            set res [$myrequest send_request $myurl PUT $headerl $data]
+        } on error {em} {
+            return $em
+        }
 
         return $res
     }
