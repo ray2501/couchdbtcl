@@ -514,6 +514,77 @@ oo::class create CouchDB_Database {
         return $res
     }
 
+    # For CouchDB 2.0 Mango Query
+    # Find documents using a declarative JSON querying syntax
+    method find {{data ""}} {
+        set myurl "$server/$database/_find"
+        set headerl [list Accept "application/json" Content-Type "application/json"]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
+
+        return $res
+    }
+
+    # For CouchDB 2.0 Mango Query
+    # Create a new index on a database
+    method index_post {{data ""}} {
+        set myurl "$server/$database/_index"
+        set headerl [list Accept "application/json" Content-Type "application/json"]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
+
+        return $res
+    }
+
+    # For CouchDB 2.0 Mango Query
+    # When you make a GET request to /db/_index, 
+    # you get a list of all indexes in the database
+    method index_get {} {
+        set myurl "$server/$database/_index"
+        set headerl [list Accept "application/json" Content-Type "application/json"]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
+
+        return $res
+    }
+
+    # For CouchDB 2.0 Mango Query
+    # Delete a index.
+    method index_delete {ddocument indexName} {
+        set myurl "$server/$database/_index/$ddocument/json/$indexName"
+        set headerl [list Accept "application/json" Content-Type "application/json"]
+        try {
+            set res [$myrequest send_request $myurl DELETE $headerl]
+        } on error {em} {
+            return $em
+        }
+
+        return $res
+    }
+
+    # For CouchDB 2.0 Mango Query
+    # Shows which index is being used by the query
+    method explain {{data ""}} {
+        set myurl "$server/$database/_explain"
+        set headerl [list Accept "application/json" Content-Type "application/json"]
+        try {
+            set res [$myrequest send_request $myurl POST $headerl $data]
+        } on error {em} {
+            return $em
+        }
+
+        return $res
+    }
+
     # Requests the database changes feed
     method changes {{data ""}} {
         set myurl "$server/$database/_changes"
