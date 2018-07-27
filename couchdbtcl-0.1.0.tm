@@ -558,7 +558,7 @@ oo::class create CouchDB_Database {
     }
 
     # For CouchDB 2.0 Mango Query
-    # Delete a index.
+    # Delete an index
     method index_delete {ddocument indexName} {
         set myurl "$server/$database/_index/$ddocument/json/$indexName"
         set headerl [list Accept "application/json" Content-Type "application/json"]
