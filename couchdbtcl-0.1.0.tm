@@ -330,6 +330,19 @@ oo::class create CouchDB_Server {
 
         return $res
     }
+
+    #Requests one or more Universally Unique Identifiers (UUIDs) from the CouchDB instance
+    method uuids {{count 1}} {
+        set myurl "$server/_uuids?count=$count"
+        set headerl [list Accept "application/json" Content-Type "application/json"]
+        try {
+            set res [$myrequest send_request $myurl GET $headerl]
+        } on error {em} {
+            return $em
+        }
+
+        return $res
+    }
 }
 
 
