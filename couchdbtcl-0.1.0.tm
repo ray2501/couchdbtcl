@@ -305,6 +305,7 @@ oo::class create CouchDB_Server {
     }
 
     # Restarts the CouchDB instance.
+    # The node-local endpoint has been removed at 2.3.0
     method restart {} {
         set myurl "$server/_restart"
         set headerl [list Accept "application/json" Content-Type "application/json"]
