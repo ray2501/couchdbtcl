@@ -6,7 +6,7 @@ A [Tcl](http://tcl.tk) client interface to Apache CouchDB. The library consists 
 [Tcl Module](http://tcl.tk/man/tcl8.6/TclCmd/tm.htm#M9) file.
 
 couchdbtcl is using  Tcl built-in package http to send request
-to [Aapache CouchDB](http://couchdb.apache.org/) and get response.
+to [Aapache CouchDB](https://couchdb.apache.org/) and get response.
 
 
 Interface
@@ -30,13 +30,22 @@ an interface to an entire database with in CouchDB.
 ### Hello, CouchDB
 
 These examples assume that CouchDB is running on localhost (127.0.0.1)
-on port 5984 (in Admin Party mode).
+on port 5984.
 
 First off, require the couchdbtcl package and create an instance of
-the `CouchDB_Server` class, then say hello to CouchDB:
+the `CouchDB_Server` class, then say hello to CouchDB (before 3.0.0):
 
     package require couchdbtcl
     set mycouchdb [CouchDB_Server new localhost 5984 no]
+    set response [$mycouchdb hello]
+    puts $response
+
+After 3.0.0, be sure to create an admin user before trying to start CouchDB!
+
+    package require couchdbtcl
+    set user admin
+    set passwd admin
+    set mycouchdb [CouchDB_Server new localhost 5984 basic $user $passwd]
     set response [$mycouchdb hello]
     puts $response
 
@@ -48,9 +57,18 @@ Next, we can get a list of databases:
     set response [$mycouchdb all_dbs]
     puts $response
 
-Now, using CouchDB_Database to create a database named wiki:
+Before 3.0.0, using CouchDB_Database to create a database named wiki:
 
     set mydatabase [CouchDB_Database new localhost 5984  wiki no]
+    set response [$mydatabase create]
+    puts $response
+
+After 3.0.0, using CouchDB_Database to create a database named wiki
+(Basic authentication):
+
+    set user admin
+    set passwd admin
+    set mydatabase [CouchDB_Database new localhost 5984  wiki basic $user $passwd]
     set response [$mydatabase create]
     puts $response
 
@@ -84,9 +102,9 @@ Now try to delete this database:
 
 ### Authentication
 
-By default a new instance of CouchDB runs in Admin Party mode – until the
-first admin account is created, everyone’s an admin. In Admin Party mode,
-connect to CouchDB setup auth type to no:
+Before 3.0.0, by default a new instance of CouchDB runs in Admin Party mode –
+until the first admin account is created, everyone’s an admin. In Admin Party
+mode, connect to CouchDB setup auth type to no:
 
     set mydatabase [CouchDB_Database new localhost 5984 wiki no]
 
@@ -97,7 +115,7 @@ must compute password hash with every request).
 
 Connect to CouchDB setup auth type to basic:
 
-    set mydatabase [CouchDB_Database new localhost 5984 wiki basic $username $password]
+    set mydatabase [CouchDB_Database new localhost 5984 wiki basic $user $passwd]
 
 For cookie authentication CouchDB generates a token that the client can use
 for the next few requests to CouchDB. Tokens are valid until a timeout.
@@ -108,7 +126,7 @@ are valid for 10 minutes
 Cookie Authentication, need use method cookie_post to initiate new session
 for specified user credentials by providing Cookie value:
 
-    set mydatabase [CouchDB_Database new localhost 5984 wiki cookie $username $password]
+    set mydatabase [CouchDB_Database new localhost 5984 wiki cookie $user $passwd]
     # Initiates new session for specified user
     set response [$mydatabase cookie_post]
     puts $response
@@ -119,6 +137,9 @@ for specified user credentials by providing Cookie value:
 CouchDB supports OAuth 1.0 authentication. OAuth provides a method for
 clients to access server resources without sharing real credentials
 (username and password).
+
+However, CouchDB's native OAuth support has been deprecated and removed
+since version 2.1.
 
 OAuth Authentication, need use method oauth_set to setup key and token info:
 

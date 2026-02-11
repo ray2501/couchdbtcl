@@ -34,7 +34,7 @@ package require TclOO
 package require http
 package require base64
 
-package provide couchdbtcl 0.1.0
+package provide couchdbtcl 0.2.0
 
 
 #
@@ -170,7 +170,9 @@ oo::class create CouchDB_Server {
             set protocol "https"
 
             if {[catch {package require tls}]==0} {
-                http::register https 443 [list ::tls::socket -ssl3 0 -ssl2 0 -tls1 1]
+                http::register https 443 [list ::tls::socket -autoservername 1 \
+                                          -require 0 -ssl3 0 -tls1 0 -tls1.1 0 \
+                                          -tls1.2 1 -tls1.3 1]
             } else {
                 error "SSL_ENABLED needs package tls..."
             }
@@ -372,7 +374,9 @@ oo::class create CouchDB_Database {
             set protocol "https"
 
             if {[catch {package require tls}]==0} {
-                http::register https 443 [list ::tls::socket -ssl3 0 -ssl2 0 -tls1 1]
+                http::register https 443 [list ::tls::socket -autoservername 1 \
+                                          -require 0 -ssl3 0 -tls1 0 -tls1.1 0 \
+                                          -tls1.2 1 -tls1.3 1]
             } else {
                 error "SSL_ENABLED needs package tls..."
             }
